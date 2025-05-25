@@ -1,27 +1,65 @@
 import { FaEnvelope , FaLock, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useState } from 'react'
+import { useNavigate } from "react-router-dom";
 import { Link } from 'react-router-dom'
 import './Auth.css'
 
 const Login = () => {
 
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
+    const navigate = useNavigate();
 
-    const [showPassword, setShowPassword] = useState(false)
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
-    const handleSubmit = (e) => {
+    const [showPassword, setShowPassword] = useState(false);
+
+    const [error, setError] = useState("");
+
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Email: ", email);
-        console.log("Password: ", password);
+        setError("");
 
-        // Enviar os dados para o backend
-    }
+        const loginData = {
+            email: email,
+            password: password
+        };
+
+        try{
+            const response = await fetch('http://localhost:8080/api/auth/login',{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(loginData),
+            });
+
+            if(response.ok){
+                const data = await response.json();
+                console.log('Login bem-sucedido:', data);
+                navigate("/home", { state: { user: data.name } });
+            } else{
+                const errorData = await response.text();
+                console.error('Falha no login:', response.status, errorData);
+
+                try {
+                    const parsedError = JSON.parse(errorData);
+                    setError(parsedError.message || `Erro ${response.status}: ${errorData}`);
+                } catch (parseError) {
+                    setError(`Erro ${response.status}: ${errorData}`);
+                }
+            }
+        } catch(error) {
+            console.error('Erro ao conectar com o servidor:', error);
+            setError("Erro ao conectar com o servidor. Tente novamente mais tarde."); 
+        }
+    };
 
     return(
         <div className="container">
             <form onSubmit={handleSubmit}>
                 <h1>Faça login</h1>
+
                 <div className="input-field">
                     <input type="email" placeholder="E-mail" required onChange={(e) => setEmail(e.target.value)}/>
                     <FaEnvelope className="icon"/>
@@ -39,6 +77,8 @@ const Login = () => {
                     </span>
                     <FaLock className="icon"/> 
                 </div>
+
+                {error && <p className="error-message">{error}</p>} 
 
                 <div className="recall-forget">
                     <label>

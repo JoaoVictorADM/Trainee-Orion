@@ -3,7 +3,7 @@
     background-color: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
     border: 2px solid rgba(255, 255, 255, 0.2);
-    padding: 40px;
+    padding: 30px;
     border-radius: 10px;
 }
 
@@ -108,4 +108,12 @@
 .container .signup-link p,
 .container .signup-link a {
     text-shadow: none;
+}
+
+.error-message {
+    text-align: center;
+    padding-bottom: 40px;
+    padding-top: 0px;
+    color: red;
+    font-weight: bold;
 }
